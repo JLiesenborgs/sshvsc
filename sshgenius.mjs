@@ -47,12 +47,13 @@ async function getTokenFromWebsite() {
 
 async function main() {
 
-    if (process.argv.length != 4) {
-        throw new Error("Need login name and path to private key");
+    if (process.argv.length < 4) {
+        throw new Error("Need login name and path to private key, optionally followed by a command");
     }
 
     const user = process.argv[2];
     const privKeyPath = process.argv[3];
+    const command = process.argv.slice(4);
     console.log("user: " + user);
     console.log("privKeyPath: " + privKeyPath);
 
@@ -86,7 +87,7 @@ async function main() {
     }
 
     console.log("Running ssh");
-    spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be" ], { stdio: "inherit" });
+    spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be", ...command ], { stdio: "inherit" });
 }
 
 try {
