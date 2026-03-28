@@ -1,3 +1,6 @@
+//const proxy = null;
+const proxy = "socks5://172.18.15.237:1080"
+
 function timeoutPromise(delay) {
     return new Promise((resolve, reject) => {
         if (delay < 0) {
@@ -16,8 +19,12 @@ async function getTokenFromWebsite() {
 
     const { default: puppeteer } = await import('puppeteer');
 
+    let args = [];
+    if (proxy)
+        args = [ `--proxy-server=${proxy}` ];
     const browser = await puppeteer.launch({
         headless: false,
+        args: args,
         //args: [ `--window-size=${windowWidth+extraWidth},${windowHeight+extraHeight}` ],
         //defaultViewport: { width: windowWidth, height: windowHeight },
     });
@@ -71,8 +78,19 @@ async function main() {
 
     let access = false;
     if (token) {
-        const response = await fetch('https://firewall.hpc.kuleuven.be/fw/add',
-            { method: "GET", headers: { "Authorization": token } });
+        const { SocksProxyAgent } = await import('socks-proxy-agent');
+        const { default: nodeFetch } = await import('node-fetch');
+
+        let agent = null;
+        let fetchFn = fetch;
+
+        if (proxy) {
+            console.log("Using fetch proxy agent for " + proxy);
+            agent = new SocksProxyAgent(proxy);
+            fetchFn = nodeFetch;
+        }
+        const response = await fetchFn('https://firewall.hpc.kuleuven.be/fw/add',
+            { method: "GET", headers: { "Authorization": token }, agent: agent });
 
         const data = await response.json();
         console.log(data);
