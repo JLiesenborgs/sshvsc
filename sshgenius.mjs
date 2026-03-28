@@ -1,5 +1,4 @@
-//const proxy = null;
-const proxy = "socks5://172.18.15.237:1080"
+let proxy = null;
 
 function timeoutPromise(delay) {
     return new Promise((resolve, reject) => {
@@ -60,7 +59,15 @@ async function main() {
 
     const user = process.argv[2];
     const privKeyPath = process.argv[3];
-    const command = process.argv.slice(4);
+    let nextCommandStart = 4;
+
+    if (process.argv[4] == "--proxy")
+    {
+        proxy = process.argv[5];
+        nextCommandStart = 6;
+    }
+
+    const command = process.argv.slice(nextCommandStart);
     console.log("user: " + user);
     console.log("privKeyPath: " + privKeyPath);
 
