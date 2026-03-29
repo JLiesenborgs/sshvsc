@@ -111,6 +111,8 @@ async function main() {
         fs.writeFileSync(bearerFileName, newBearerToken);
     }
 
+    console.log("Waiting a second");
+    await timeoutPromise(1000);
     console.log("Running ssh");
     spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be", ...command ], { stdio: "inherit" });
 }
