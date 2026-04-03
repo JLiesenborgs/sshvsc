@@ -114,7 +114,11 @@ async function main() {
     console.log("Waiting a second");
     await timeoutPromise(1000);
     console.log("Running ssh");
-    spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be", ...command ], { stdio: "inherit" });
+    const r = spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be", ...command ], { stdio: "inherit" });
+    console.log("Exiting");
+    if (r.status !== null)
+        process.exit(r.status);
+    process.exit(-1);
 }
 
 try {
