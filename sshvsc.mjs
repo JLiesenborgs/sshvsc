@@ -26,16 +26,17 @@ async function getTokenFromWebsite() {
     const browser = await puppeteer.launch({
         headless: false,
         args: args,
-        //args: [ `--window-size=${windowWidth+extraWidth},${windowHeight+extraHeight}` ],
-        //defaultViewport: { width: windowWidth, height: windowHeight },
     });
 
     const page = await browser.newPage();
+    await page.setViewport(null);
     await page.goto("https://firewall.hpc.kuleuven.be");
 
     let bearer = null;
+    let errorCount = 0;
+
     while (!bearer) {
-        await timeoutPromise(0.5);
+        await timeoutPromise(500);
         try {
             bearer = await page.evaluate(() => {
                 let span = document.querySelector("span#bearer");
@@ -43,8 +44,12 @@ async function getTokenFromWebsite() {
                     return null;
                 return span.textContent;
             });
+            errorCount = 0; // reset consecutive error count
         } catch(e) {
             console.log(`Error looking for bearer: ${e}`);
+            errorCount++;
+            if (errorCount == 10)
+                throw Error("Maximum number of consecutive errors reached");
         }
     }
     console.log("Bearer from webpage is: " + bearer);
