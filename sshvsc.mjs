@@ -18,7 +18,7 @@ function timeoutPromise(delay) {
 
 async function getTokenFromWebsite() {
 
-    const { default: puppeteer } = await import('puppeter');
+    const { default: puppeteer } = await import('puppeteer');
 
     let args = [];
     if (proxy)
