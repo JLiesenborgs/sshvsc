@@ -24,4 +24,9 @@ To install the dependencies, first run 'npm install'. Then you can either execut
 
     ./sshvsc.mjs vsc12345@login.hpc.kuleuven.be
 
-
+Prerequisites:
+ - The 'ssh' command must be available and executable. If not in PATH, you can edit the .mjs
+   script to use the full path to 'ssh'.
+ - 'node' must be installed and executable as a command. If it's installed but not in PATH,
+   you can change either the '#!' line in the .mjs file, or the .bat file to contain the full
+   path to the 'node' executable.
