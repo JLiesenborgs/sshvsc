@@ -1,4 +1,6 @@
-let proxy = null;
+#!/usr/bin/env node
+
+const proxy = process.env.VSC_PROXY;
 
 function timeoutPromise(delay) {
     return new Promise((resolve, reject) => {
@@ -16,7 +18,7 @@ function timeoutPromise(delay) {
 
 async function getTokenFromWebsite() {
 
-    const { default: puppeteer } = await import('puppeteer');
+    const { default: puppeteer } = await import('puppeter');
 
     let args = [];
     if (proxy)
@@ -46,6 +48,7 @@ async function getTokenFromWebsite() {
         }
     }
     console.log("Bearer from webpage is: " + bearer);
+    await timeoutPromise(1000);
 
     browser.close();
     return bearer;
@@ -53,23 +56,7 @@ async function getTokenFromWebsite() {
 
 async function main() {
 
-    if (process.argv.length < 4) {
-        throw new Error("Need login name and path to private key, optionally followed by a command");
-    }
-
-    const user = process.argv[2];
-    const privKeyPath = process.argv[3];
-    let nextCommandStart = 4;
-
-    if (process.argv[4] == "--proxy")
-    {
-        proxy = process.argv[5];
-        nextCommandStart = 6;
-    }
-
-    const command = process.argv.slice(nextCommandStart);
-    console.log("user: " + user);
-    console.log("privKeyPath: " + privKeyPath);
+    const commandArgs = process.argv.slice(2);
 
     const { default: fs } = await import('fs');
     const { spawnSync } = await import('child_process');
@@ -113,8 +100,10 @@ async function main() {
 
     console.log("Waiting a second");
     await timeoutPromise(1000);
+
     console.log("Running ssh");
-    const r = spawnSync("ssh", [ "-4", "-A", "-t", "-i", privKeyPath, user + "@login.hpc.kuleuven.be", ...command ], { stdio: "inherit" });
+    const r = spawnSync("ssh", commandArgs, { stdio: "inherit" });
+
     console.log("Exiting");
     if (r.status !== null)
         process.exit(r.status);
@@ -125,5 +114,6 @@ try {
     await main();
 } catch(e) {
     console.log(`Error: ${e}`);
+    process.exit(-1);
 }
 
