@@ -58,10 +58,12 @@ async function main() {
 
     const commandArgs = process.argv.slice(2);
 
+    const { default: os } = await import('os');
+    const { default: path } = await import('path');
     const { default: fs } = await import('fs');
     const { spawnSync } = await import('child_process');
 
-    const bearerFileName = process.env.HOME + "/.vscbearer.dat"
+    const bearerFileName = path.join(os.homedir(), ".vscbearer.dat");
     let token = null;
 
     try {
