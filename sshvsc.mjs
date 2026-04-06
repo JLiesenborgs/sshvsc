@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const proxy = process.env.VSC_PROXY;
+let browser = null;
 
 function timeoutPromise(delay) {
     return new Promise((resolve, reject) => {
@@ -23,7 +24,7 @@ async function getTokenFromWebsite() {
     let args = [];
     if (proxy)
         args = [ `--proxy-server=${proxy}` ];
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
         headless: false,
         args: args,
     });
@@ -53,9 +54,7 @@ async function getTokenFromWebsite() {
         }
     }
     console.log("Bearer from webpage is: " + bearer);
-    await timeoutPromise(1000);
 
-    browser.close();
     return bearer;
 }
 
@@ -111,6 +110,13 @@ async function main() {
     console.log("Running ssh");
     const r = spawnSync("ssh", commandArgs, { stdio: "inherit" });
 
+    if (browser) {
+        try {
+            browser.close();
+        } catch (e) {
+            console.log(`Warning: error when closing browser: ${e.message}`);
+        }
+    }
     console.log("Exiting");
     if (r.status !== null)
         process.exit(r.status);
